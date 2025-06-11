@@ -1,0 +1,27 @@
+<!-- doc_manager/templates/doc_manager/sop_creation_result.html -->
+{% extends 'doc_manager/base.html' %}
+
+{% block content %}
+<h2>{{ item_type }} "Creation" Result</h2>
+
+<p>{{ item_type }} Name/Title: <strong>{{ item_name }}</strong></p>
+<p>{{ details }}</p>
+
+{% if qr_code_url %}
+    <h3>Generated QR Code (Simulated)</h3>
+    <p>This QR code encodes the following data: <pre>{{ qr_data }}</pre></p>
+    <img src="{{ qr_code_url }}" alt="QR Code for {{ item_name }}">
+    <p><a href="{{ qr_code_url }}" target="_blank">View QR Image</a></p>
+    <p><em>In a fully functional application, this QR code would link to the persistent record.</em></p>
+{% else %}
+    <p>QR Code generation was skipped or failed: <pre>{{ qr_data }}</pre></p>
+{% endif %}
+
+<hr>
+<p><a href="{% url 'doc_manager:dashboard' %}">Back to Dashboard</a></p>
+{% if item_type == "SOP" %}
+<p><a href="{% url 'doc_manager:create_sop' %}">Create Another SOP</a></p>
+{% elif item_type == "Kanban Card" %}
+<p><a href="{% url 'doc_manager:create_kanban_card' %}">Create Another Kanban Card</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+<!-- doc_manager/templates/doc_manager/not_authorized.html -->
+{% extends 'doc_manager/base.html' %}
+{% block content %}
+   <h2>Not Authorized</h2>
+   <p>You do not have the necessary permissions to access the requested page or perform this action.</p>
+   <p>If you believe this is an error, please contact an administrator.</p>
+   <p><a href="{% url 'doc_manager:dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}

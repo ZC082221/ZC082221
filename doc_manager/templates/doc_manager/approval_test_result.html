@@ -1,0 +1,22 @@
+<!-- doc_manager/templates/doc_manager/approval_test_result.html -->
+{% extends 'doc_manager/base.html' %}
+
+{% block content %}
+<h2>Simulated Approval Workflow Test</h2>
+<p><strong>Document ID (Simulated):</strong> {{ simulated_doc_id }}</p>
+
+<p><strong>User:</strong> {{ request.user.username }}</p>
+
+{% if user_is_approver %}
+    <p style="color: green;">User IS an Approver.</p>
+    <p>{{ action_message }}</p>
+    <p><em>In a real system, the document status would be changed to 'Approved' in the database.</em></p>
+{% else %}
+    <p style="color: red;">User IS NOT an Approver.</p>
+    <p>{{ action_message }}</p>
+    <p><em>User does not have permission to approve. Access to approval functionality would typically be restricted.</em></p>
+    <p><a href="{% url 'doc_manager:not_authorized' %}?next={{ request.path }}">Display Not Authorized Page (Example)</a></p>
+{% endif %}
+<hr>
+<p><a href="{% url 'doc_manager:dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}
