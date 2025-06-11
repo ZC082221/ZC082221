@@ -1,0 +1,22 @@
+<!-- doc_manager/templates/doc_manager/base.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doc Manager</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'doc_manager:dashboard' %}">Dashboard</a> |
+        {% if user.is_authenticated %}
+            <span>Hello, {{ user.username }}!</span>
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'doc_manager:register' %}">Register</a>
+        {% endif %}
+    </nav>
+    <hr>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

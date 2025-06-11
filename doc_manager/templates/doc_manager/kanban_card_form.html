@@ -1,0 +1,13 @@
+<!-- doc_manager/templates/doc_manager/kanban_card_form.html -->
+{% extends 'doc_manager/base.html' %}
+
+{% block content %}
+<h2>{{ form_title }}</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Kanban Card</button>
+</form>
+<hr>
+<p><a href="{% url 'doc_manager:dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}

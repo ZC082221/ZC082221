@@ -1,0 +1,96 @@
+<!-- doc_manager/templates/doc_manager/sop_form.html -->
+{% extends 'doc_manager/base.html' %}
+
+{% block content %}
+<h2>{{ form_title }}</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <h3>SOP Details</h3>
+    {{ sop_form.as_p }}
+
+    <h3>SOP Steps</h3>
+    {{ step_formset.management_form }}
+    <div id="step-forms-container">
+        {% for form in step_formset %}
+        <div class="step-form">
+            <h4>Step {{ forloop.counter }}</h4>
+            {{ form.as_p }}
+            {% if form.instance.pk and step_formset.can_delete %}
+            <!-- Delete checkbox would go here if formset items were actual model instances -->
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add-step-form">Add Another Step</button>
+    <hr>
+    <button type="submit">Save SOP</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addStepButton = document.getElementById('add-step-form');
+    const container = document.getElementById('step-forms-container');
+    const totalFormsInput = document.querySelector('#id_steps-TOTAL_FORMS');
+    const formsetPrefix = 'steps'; // Matches the prefix in the view
+    // Find the template for a new form. This could be the first form, or a hidden template.
+    // For simplicity, we'll use the structure of the first form if it exists.
+    const firstStepForm = container.querySelector('.step-form');
+
+    addStepButton.addEventListener('click', function() {
+        if (!firstStepForm && totalFormsInput.value === "0") {
+            // This is a basic fallback if there are NO initial forms to clone.
+            // A robust implementation would use Django's empty_form feature.
+            alert("Cannot add new forms dynamically without at least one initial form to use as a template in this simplified version. Please add an 'extra=1' form in your formset definition or use Django's empty_form.");
+            return;
+        }
+
+        let formNum = parseInt(totalFormsInput.value);
+
+        const newFormDiv = document.createElement('div');
+        newFormDiv.classList.add('step-form');
+
+        // Clone the content of the first form (or an empty_form template)
+        // This is a simplified cloning process.
+        let formTemplateHtml = '';
+        if (firstStepForm) {
+            formTemplateHtml = firstStepForm.innerHTML;
+        } else {
+            // Fallback: very basic structure if no initial forms (less ideal)
+            // This part should align with how your SopStepForm renders (e.g., as_p)
+            formTemplateHtml = `<h4>Step ${formNum + 1}</h4>
+<input type="hidden" name="${formsetPrefix}-${formNum}-id" id="id_${formsetPrefix}-${formNum}-id">
+<p><label for="id_${formsetPrefix}-${formNum}-step_description">Step description:</label> <textarea name="${formsetPrefix}-${formNum}-step_description" cols="40" rows="2" id="id_${formsetPrefix}-${formNum}-step_description"></textarea></p>
+<p><label for="id_${formsetPrefix}-${formNum}-step_photo">Step photo:</label> <input type="file" name="${formsetPrefix}-${formNum}-step_photo" id="id_${formsetPrefix}-${formNum}-step_photo"></p>
+<p><label for="id_${formsetPrefix}-${formNum}-DELETE">Delete:</label> <input type="checkbox" name="${formsetPrefix}-${formNum}-DELETE" id="id_${formsetPrefix}-${formNum}-DELETE"></p>`;
+        }
+
+        // Replace form index placeholders
+        const newFormHtml = formTemplateHtml.replace(/-(0|__prefix__)-/g, `-${formNum}-`)
+                                          .replace(/Step \d+/, `Step ${formNum + 1}`);
+
+        newFormDiv.innerHTML = newFormHtml;
+
+        // Update IDs and names for input fields within the new form div
+        // This step is crucial if the innerHTML setting doesn't catch all nested elements correctly
+        // or if you need more complex manipulations.
+        Array.from(newFormDiv.querySelectorAll('input, textarea, select, label')).forEach(el => {
+            if (el.name) el.name = el.name.replace(new RegExp(formsetPrefix + '-(0|__prefix__)-'), formsetPrefix + '-' + formNum + '-');
+            if (el.id) el.id = el.id.replace(new RegExp('id_' + formsetPrefix + '-(0|__prefix__)-'), 'id_' + formsetPrefix + '-' + formNum + '-');
+            if (el.htmlFor) el.htmlFor = el.htmlFor.replace(new RegExp('id_' + formsetPrefix + '-(0|__prefix__)-'), 'id_' + formsetPrefix + '-' + formNum + '-');
+        });
+
+        // If the formset allows deletion, ensure the delete checkbox is correctly named and ID'd
+        const deleteCheckbox = newFormDiv.querySelector(`input[name$='DELETE']`);
+        if (deleteCheckbox) {
+            deleteCheckbox.name = `${formsetPrefix}-${formNum}-DELETE`;
+            deleteCheckbox.id = `id_${formsetPrefix}-${formNum}-DELETE`;
+        }
+
+
+        container.appendChild(newFormDiv);
+        totalFormsInput.value = formNum + 1;
+    });
+});
+</script>
+{% endblock %}
